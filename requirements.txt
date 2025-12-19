@@ -1,0 +1,9 @@
+google-cloud-aiplatform
+google-generativeai
+jinja2
+weasyprint
+tqdm
+python-dotenv
+banana-dev
+requests
+pillow

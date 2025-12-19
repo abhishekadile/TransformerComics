@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformer from Scratch - A Comic Guide</title>
+    <meta name="description"
+        content="A generic visual comic book guide to the Transformer Deep Learning architecture. Learn about Attention Mechanisms, Embeddings, and Neural Networks through detailed comic panels and math explanations.">
+    <meta name="keywords"
+        content="Transformer, AI, Deep Learning, Comic, Machine Learning, Attention Mechanism, Neural Networks, Educational, Visualization">
+    <meta property="og:title" content="Transformer from Scratch - A Comic Guide">
+    <meta property="og:description" content="Read the visual guide to Transformers.">
+    <meta property="og:type" content="website">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
+        rel="stylesheet">
+
+    <!-- MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+        :root {
+            --bg-color: #fce4ec;
+            /* Light pinkish comic background */
+            --text-color: #212121;
+            --panel-bg: #ffffff;
+            --border-color: #000000;
+            --accent-color: #ffca28;
+            /* Amber */
+            --header-font: 'Bangers', cursive;
+            --body-font: 'Comic Neue', cursive;
+            --sidebar-width: 250px;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #eaeaea;
+            --panel-bg: #2d2d2d;
+            --border-color: #555555;
+            --accent-color: #ff8f00;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--body-font);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1.1rem;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: var(--panel-bg);
+            border-right: 3px solid var(--border-color);
+            overflow-y: auto;
+            padding: 1rem;
+            z-index: 100;
+        }
+
+        aside h1 {
+            font-family: var(--header-font);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        aside nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        aside nav ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        aside nav ul li a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: bold;
+            display: block;
+            padding: 0.5rem;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        aside nav ul li a:hover {
+            background-color: var(--accent-color);
+            border-color: var(--border-color);
+            color: #000;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            /* Keep consistent width for readability */
+            margin-right: auto;
+        }
+
+        .comic-page {
+            background-color: var(--panel-bg);
+            border: 4px solid var(--border-color);
+            box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.2);
+            margin-bottom: 3rem;
+            padding: 2rem;
+            position: relative;
+            break-inside: avoid;
+            /* Prevent page break inside comic page for PDF */
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px dashed var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h2 {
+            font-family: var(--header-font);
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        .page-number {
+            font-family: var(--header-font);
+            font-size: 1.5rem;
+            background-color: var(--accent-color);
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+        }
+
+        .comic-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .comic-layout {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+
+            .panel-image {
+                flex: 1;
+                max-width: 50%;
+            }
+
+            .panel-content {
+                flex: 1;
+            }
+        }
+
+        .panel-image img {
+            width: 100%;
+            height: auto;
+            border: 3px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Narratives look like speech bubbles/captions */
+        .narrative-box {
+            background-color: #fff9c4;
+            /* Light yellow */
+            border: 2px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            color: #000;
+        }
+
+        body.dark-mode .narrative-box {
+            background-color: #ffd54f;
+        }
+
+        .technical-section h3 {
+            font-family: var(--header-font);
+            color: #d32f2f;
+            /* Dark red */
+            font-size: 1.8rem;
+            border-bottom: 2px solid #d32f2f;
+            display: inline-block;
+        }
+
+        body.dark-mode .technical-section h3 {
+            color: #ff5252;
+            border-bottom-color: #ff5252;
+        }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 101;
+        }
+
+        .theme-toggle button {
+            background-color: var(--accent-color);
+            border: 3px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            font-family: var(--header-font);
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+        }
+
+        .theme-toggle button:active {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+
+        /* Print Styles */
+        @media print {
+
+            aside,
+            .theme-toggle {
+                display: none;
+            }
+
+            main {
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .comic-page {
+                box-shadow: none;
+                border: 2px solid #000;
+                page-break-after: always;
+            }
+
+            body {
+                background-color: #fff;
+            }
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        pre code {
+            display: block;
+            padding: 1em;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="theme-toggle">
+        <button onclick="document.body.classList.toggle('dark-mode')">Toggle Dark Mode</button>
+    </div>
+
+    <aside>
+        <h1>Transformer Comic</h1>
+        <nav>
+            <ul>
+                {% for page in pages %}
+                <li>
+                    <a href="#page-{{ page.page_number }}">
+                        Page {{ page.page_number }}:<br>
+                        <span style="font-weight: normal; font-size: 0.9em;">{{ page.title }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </aside>
+
+    <main>
+        {% for page in pages %}
+        <article id="page-{{ page.page_number }}" class="comic-page">
+            <div class="page-header">
+                <h2>{{ page.title }}</h2>
+                <div class="page-number">#{{ page.page_number }}</div>
+            </div>
+
+            <div class="narrative-box">
+                <strong>Narrator:</strong> {{ page.narrative }}
+            </div>
+
+            <div class="comic-layout">
+                <div class="panel-image">
+                    {% if page.image_path %}
+                    <img src="{{ page.image_path }}" alt="{{ page.image_prompt }}">
+                    {% else %}
+                    <div
+                        style="width:100%; height:400px; background:#ddd; display:flex; align-items:center; justify-content:center; border:2px dashed #000;">
+                        Image Placeholder
+                    </div>
+                    {% endif %}
+                    <p style="font-size: 0.8rem; color: #666; font-style: italic; margin-top: 0.5rem;">
+                        Prompt: {{ page.image_prompt }}
+                    </p>
+                </div>
+
+                <div class="panel-content technical-section">
+                    {{ page.technical_content | safe }}
+                </div>
+            </div>
+
+            <div style="position: absolute; bottom: 10px; right: 10px; font-size: 0.8rem; color: #999;">
+                Chapter {{ page.chapter }}
+            </div>
+        </article>
+        {% endfor %}
+    </main>
+
+</body>
+
+</html>
