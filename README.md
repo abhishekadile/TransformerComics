@@ -50,6 +50,25 @@ Check the `/output` directory for:
 - `transformer_comic.pdf`: Print-ready PDF file
 - `images/`: The generated images
 
+
+## Deployment (GitHub Pages)
+
+This project is configured for easy deployment on GitHub Pages.
+
+1. **Push to GitHub**:
+   The `docs/` folder contains the build artifacts (HTML + Images) ready for web hosting.
+
+2. **Enable GitHub Pages**:
+   - Go to your repository settings on GitHub.
+   - Navigate to **"Pages"** (sidebar).
+   - Under **"Build and deployment"**, select **Source** as `Deploy from a branch`.
+   - Select **Branch**: `main` and **Folder**: `/docs`.
+   - Click **Save**.
+
+3. **Access**:
+   Your comic will be live at: `https://<your-username>.github.io/<repo-name>/`
+   (e.g., `https://abhishekadile.github.io/TransformerComics/`)
+
 ## Customization
 
 Edit `transformer_comic/content_data.py` to change the narratives, prompts, or technical explanations.
